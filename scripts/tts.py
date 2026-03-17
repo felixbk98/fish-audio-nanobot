@@ -81,7 +81,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     text = sys.argv[1]
-    output_path = sys.argv[2] if len(sys.argv) > 2 else "/tmp/jarvis_tts.ogg"
+    output_path = sys.argv[2] if len(sys.argv) > 2 else "/tmp/nanobot_tts.ogg"
 
     result = text_to_audio(text, output_path)
     print(result)

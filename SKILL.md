@@ -14,15 +14,15 @@ Dieser Skill ermöglicht das Empfangen und Senden von WhatsApp-Sprachnachrichten
 
 ## Konfiguration
 
-- **API Key:** `FISHAUDIO_API_KEY` in `/home/jarvis/.config/environment.d/fishaudio.conf`
-- **Einstellungen:** `/home/jarvis/.nanobot/workspace/skills/fish-audio/config.json`
+- **API Key:** `FISHAUDIO_API_KEY` als Umgebungsvariable (z.B. in `~/.config/environment.d/fishaudio.conf`)
+- **Einstellungen:** `config.json` im Skill-Ordner
   - `voice_id` — Fish Audio Stimmen-ID
   - `tts_format` — Audio-Format (Standard: mp3)
   - `tts_bitrate` — Bitrate für OGG/OPUS (Standard: 64k)
   - `stt_language` — Sprache für STT (Standard: de)
   - `speed` — Sprechgeschwindigkeit (Standard: 1.0, z.B. 1.5 = schneller, 0.8 = langsamer)
-- **Python:** `/home/jarvis/.local/share/uv/tools/nanobot-ai/bin/python3`
-- **Skripte:** `/home/jarvis/.nanobot/workspace/skills/fish-audio/scripts/`
+- **Python:** Nanobot Python-Pfad (via `$(dirname $(readlink -f $(which nanobot)))/python3`)
+- **Skripte:** `scripts/` im Skill-Ordner
 
 ## Antwort-Logik
 
@@ -43,9 +43,8 @@ Wenn eine Nachricht `[Voice Message]` enthält UND ein `[audio: /pfad/datei.ogg]
 2. Transkribieren:
 
 ```bash
-/home/jarvis/.local/share/uv/tools/nanobot-ai/bin/python3 \
-  /home/jarvis/.nanobot/workspace/skills/fish-audio/scripts/stt.py \
-  "<pfad_zur_audio_datei>"
+NANOBOT_PYTHON=$(dirname $(readlink -f $(which nanobot)))/python3
+$NANOBOT_PYTHON <skill_dir>/scripts/stt.py "<pfad_zur_audio_datei>"
 ```
 
 3. Den transkribierten Text als eigentliche User-Nachricht behandeln und darauf antworten.
@@ -57,36 +56,30 @@ Wenn der User eine Sprachantwort wünscht:
 
 ### Schritt 1: Text zu Audio
 ```bash
-/home/jarvis/.local/share/uv/tools/nanobot-ai/bin/python3 \
-  /home/jarvis/.nanobot/workspace/skills/fish-audio/scripts/tts.py \
-  "<antworttext>" \
-  "/tmp/jarvis_tts_$(date +%s).ogg"
+NANOBOT_PYTHON=$(dirname $(readlink -f $(which nanobot)))/python3
+$NANOBOT_PYTHON <skill_dir>/scripts/tts.py "<antworttext>" "/tmp/nanobot_tts_$(date +%s).ogg"
 ```
 Voice ID wird automatisch aus `config.json` gelesen.
 
 ### Schritt 2: Audio senden
 ```bash
-/home/jarvis/.local/share/uv/tools/nanobot-ai/bin/python3 \
-  /home/jarvis/.nanobot/workspace/skills/fish-audio/scripts/send_audio.py \
-  "<chat_id>" \
-  "<pfad_zur_ogg_datei>"
+NANOBOT_PYTHON=$(dirname $(readlink -f $(which nanobot)))/python3
+$NANOBOT_PYTHON <skill_dir>/scripts/send_audio.py "<chat_id>" "<pfad_zur_ogg_datei>"
 ```
 
-Die `chat_id` ist die WhatsApp LID des Users (z.B. `163178726060229@lid`).
+Die `chat_id` ist die WhatsApp ID des Users (z.B. `123456789@s.whatsapp.net` oder eine LID).
 
 ## Bridge-Patch
 
 Die WhatsApp Bridge muss gepatcht sein für Audio-Support. Nach einem nanobot-Update:
 
 ```bash
-bash /home/jarvis/.nanobot/workspace/skills/fish-audio/scripts/patch-bridge.sh
+bash <skill_dir>/scripts/patch-bridge.sh
 ```
-
-Siehe auch: `/home/jarvis/.nanobot/workspace/docs/UPDATE_MANUAL.md`
 
 ## Fehlerbehebung
 
-- **"FISHAUDIO_API_KEY not set"**: Key in environment.d prüfen, VM rebooten
+- **"FISHAUDIO_API_KEY not set"**: Key als Umgebungsvariable setzen, VM rebooten
 - **ffmpeg Fehler**: `sudo apt install ffmpeg`
 - **Bridge sendet kein Audio**: Patch prüfen mit `grep sendAudio ~/.nanobot/bridge/dist/whatsapp.js`
-- **fish-audio-sdk fehlt**: `uv pip install fish-audio-sdk --python /home/jarvis/.local/share/uv/tools/nanobot-ai/bin/python3`
+- **fish-audio-sdk fehlt**: `uv pip install fish-audio-sdk --python $(dirname $(readlink -f $(which nanobot)))/python3`

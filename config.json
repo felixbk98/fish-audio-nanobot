@@ -1,5 +1,5 @@
 {
-  "voice_id": "032f933919b345e6b0b30d9c2a33c319",
+  "voice_id": "YOUR_VOICE_MODEL_ID",
   "tts_format": "mp3",
   "tts_bitrate": "64k",
   "stt_language": "de",
