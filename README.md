@@ -21,7 +21,8 @@ WhatsApp voice messages (STT + TTS) for [nanobot](https://github.com/HKUDS/nanob
 ### 1. Install fish-audio-sdk
 
 ```bash
-uv pip install fish-audio-sdk --python /home/jarvis/.local/share/uv/tools/nanobot-ai/bin/python3
+NANOBOT_PYTHON=$(dirname $(readlink -f $(which nanobot)))/python3
+uv pip install fish-audio-sdk --python $NANOBOT_PYTHON
 ```
 
 ### 2. Copy skill to nanobot workspace
@@ -97,8 +98,9 @@ nanobot channels login
 # Scan QR code, wait for connection, keep running
 
 # 3. Re-apply patches (in a second terminal)
+NANOBOT_PYTHON=$(dirname $(readlink -f $(which nanobot)))/python3
 bash ~/.nanobot/workspace/skills/fish-audio/scripts/patch-bridge.sh
-uv pip install fish-audio-sdk --python /home/jarvis/.local/share/uv/tools/nanobot-ai/bin/python3
+uv pip install fish-audio-sdk --python $NANOBOT_PYTHON
 
 # 4. Stop login (Ctrl+C in first terminal)
 
